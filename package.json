@@ -3,12 +3,14 @@
   "version": "1.0.0",
   "description": "Clean DevSecOps security scanning demonstration",
   "main": "server.js",
+  
   "scripts": {
     "start": "node server.js"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "express": "^5.1.0"
-  }
+  "express": "^5.1.0",
+  "lodash": "4.17.15"
+}
 }
