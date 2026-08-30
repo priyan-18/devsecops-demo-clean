@@ -1,187 +1,263 @@
-# DevSecOps Security Pipeline
+🛡️ DevSecOps Security Pipeline
 
-> A practical CI/CD security pipeline that integrates automated security testing into the software development lifecycle.
+A practical CI/CD security implementation that integrates automated security testing into the software development lifecycle using GitHub Actions.
 
-This project demonstrates how security controls can be integrated into GitHub Actions to identify vulnerabilities before application deployment.
+This project demonstrates how security controls can be integrated into CI/CD to identify vulnerabilities early in the development and delivery process.
 
-The pipeline covers **SAST, secret detection, dependency scanning, container security, DAST, Docker image building, and container publishing**.
+The implementation covers:
 
----
+🔎 Static Application Security Testing (SAST)
 
-## 🔐 Security Architecture
+🔐 Secret detection
 
-```text
-                         Developer
-                             |
-                             v
-                    Pull Request / Push
-                             |
-                             v
-                    +------------------+
-                    | GitHub Actions   |
-                    +------------------+
-                             |
-          +------------------+------------------+
-          |                  |                  |
-          v                  v                  v
-      Semgrep            TruffleHog         npm audit
-       SAST            Secret Detection    Dependencies
-          |                  |                  |
-          +------------------+------------------+
-                             |
-                             v
-                     Docker Image Build
-                             |
-                             v
-                         Trivy Scan
-                    Container Vulnerabilities
-                             |
-                             v
-                       OWASP ZAP
-                            DAST
-                             |
-                             v
-                   Security Validation
-                             |
-                             v
-                  GitHub Container Registry
+📦 Dependency vulnerability scanning
+
+🐳 Docker image building
+
+🔍 Container vulnerability scanning
+
+🌐 Dynamic Application Security Testing (DAST)
+
+📦 Container image publishing
+
+🔐 Security Architecture
+
+Developer
+    │
+    ▼
+Pull Request / Push
+    │
+    ▼
+GitHub Actions
+    │
+    ├───────────────┬────────────────┬───────────────┐
+    ▼               ▼                ▼
+ Semgrep        TruffleHog       npm audit
+  SAST        Secret Scanning    Dependencies
+    │               │                │
+    └───────────────┴────────────────┘
+                    │
+                    ▼
+              Docker Build
+                    │
+                    ▼
+              Trivy Image Scan
+                    │
+                    ▼
+             OWASP ZAP (DAST)
+                    │
+                    ▼
+           Security Validation
+                    │
+                    ▼
+           GitHub Container Registry
+
+The security checks are implemented as separate GitHub Actions workflows, each responsible for a specific stage of the CI/CD security process.
 
 🛡️ Security Controls
-Security Control	Tool	Purpose
-SAST	Semgrep	Detect security issues in source code
-Secret Scanning	TruffleHog	Detect exposed credentials and secrets
-Dependency Scanning	npm audit	Identify vulnerable npm dependencies
-Containerization	Docker	Package the application into a container
-Container Security	Trivy	Scan container images for vulnerabilities
-DAST	OWASP ZAP	Test the running application for web vulnerabilities
-CI/CD	GitHub Actions	Automate security checks
-Container Registry	GHCR	Store validated container images
-⚙️ CI/CD Workflows
 
-The project uses separate GitHub Actions workflows for different stages of the security pipeline.
+Security Control
+
+Tool
+
+Purpose
+
+SAST
+
+Semgrep
+
+Identify security issues in source code
+
+Secret Scanning
+
+TruffleHog
+
+Detect exposed credentials and secrets
+
+Dependency Scanning
+
+npm audit
+
+Identify vulnerable npm dependencies
+
+Containerization
+
+Docker
+
+Build the application container
+
+Container Security
+
+Trivy
+
+Scan container images for vulnerabilities
+
+DAST
+
+OWASP ZAP
+
+Test the running application for web vulnerabilities
+
+CI/CD Automation
+
+GitHub Actions
+
+Automate security validation
+
+Container Registry
+
+GitHub Container Registry
+
+Store container images
+
+⚙️ GitHub Actions Workflows
+
+The repository contains five dedicated workflows.
 
 01 — PR Security
 
-Workflow: 01-pr-security.yml
+File: .github/workflows/01-pr-security.yml
 
-Runs security checks when a pull request targets the main branch.
+Performs security checks for pull requests targeting the main branch.
 
-Checks include:
+Checks:
 
-Semgrep SAST
-TruffleHog secret scanning
-npm dependency audit
+Semgrep
 
-Security findings can cause the corresponding workflow job to fail.
+TruffleHog
+
+npm audit
+
+The workflow is designed to identify security issues before changes are merged.
 
 02 — Docker Build
 
-Workflow: 02-docker-build.yml
+File: .github/workflows/02-docker-build.yml
 
-Builds the application as a Docker image.
+Builds the application into a Docker container image.
 
-The workflow validates that the application can be successfully containerized before continuing through the security pipeline.
+This validates that the application can be successfully containerized as part of the CI/CD process.
 
 03 — Trivy Image Scan
 
-Workflow: 03-image-scan.yml
+File: .github/workflows/03-image-scan.yml
 
-Scans the Docker image for known vulnerabilities using Trivy.
-
-This provides an additional security layer beyond source-code and dependency scanning.
+Scans the Docker image using Trivy to identify known vulnerabilities in the container environment.
 
 04 — OWASP ZAP Baseline Scan
 
-Workflow: 04-zap.yml
+File: .github/workflows/04-zap.yml
 
-Performs automated Dynamic Application Security Testing (DAST) against the running application using OWASP ZAP.
+Performs automated Dynamic Application Security Testing against the running application using OWASP ZAP.
 
-This helps identify security issues that may only become visible when the application is running.
+This provides security testing at the application runtime layer.
 
 05 — Publish Image to GHCR
 
-Workflow: 05-release.yml
+File: .github/workflows/05-release.yml
 
-Publishes the application container image to GitHub Container Registry after the configured CI/CD stages complete successfully.
+Publishes the application container image to GitHub Container Registry as part of the release workflow.
 
 🧪 Security Testing
 
-The repository contains intentionally vulnerable test scenarios to demonstrate how security tools behave when vulnerabilities are introduced into the application.
+The repository includes intentionally vulnerable scenarios to demonstrate how security tools detect issues during CI/CD.
 
 The testing lifecycle follows:
-Introduce Vulnerability
-        |
-        v
-Create Pull Request
-        |
-        v
-Security Pipeline
-        |
-        v
-Security Finding
-        |
-        v
+
+Vulnerable Code
+      │
+      ▼
+Pull Request
+      │
+      ▼
+Security Checks
+      │
+      ▼
+Finding Detected
+      │
+      ▼
 Pipeline Failure
-        |
-        v
+      │
+      ▼
 Remediation
-        |
-        v
+      │
+      ▼
 Re-run Pipeline
-        |
-        v
+      │
+      ▼
 Security Checks Pass
 
-This demonstrates the principle of shifting security left by identifying issues during development rather than after deployment.
+This demonstrates the shift-left security principle by identifying security issues during development rather than waiting until after deployment.
 
 📊 Pipeline Evidence
 
-The repository has GitHub Actions workflow runs demonstrating both successful security validation and intentionally triggered security failures.
+The project has GitHub Actions runs demonstrating both successful workflows and intentionally triggered security failures.
 
-Examples include:
+Evidence includes:
 
-Successful PR security checks
-Intentional Semgrep failure
-Docker build validation
-Trivy image scanning
-OWASP ZAP scanning
-Container publishing
+✅ Successful PR security checks
 
-Screenshots and detailed evidence will be added as the project documentation is expanded.
+❌ Intentional security test failures
+
+🔎 Semgrep scanning
+
+🔐 Secret scanning
+
+📦 Dependency scanning
+
+🐳 Docker image builds
+
+🔍 Trivy image scanning
+
+🌐 OWASP ZAP scanning
+
+📦 Container image publishing
+
+Screenshots and detailed findings will be documented here as the project is further developed.
 
 🚀 Getting Started
+
 Prerequisites
 
-Install:
+Install the following:
 
-Node.js
-npm
-Docker
 Git
 
-GitHub Actions runs the security workflows automatically on the configured GitHub events.
+Node.js
+
+npm
+
+Docker
 
 Clone the Repository
+
 git clone https://github.com/priyan-18/devsecops-demo.git
 cd devsecops-demo
+
 Install Dependencies
+
 npm ci
+
 Run the Application
+
 npm start
+
 🐳 Docker
 
-Build the application image locally:
+Build the Image
 
 docker build -t devsecops-demo .
 
-Run the container:
+Run the Container
 
 docker run -p 3000:3000 devsecops-demo
 
-The application can then be accessed locally through:
+The application will be available at:
 
 http://localhost:3000
+
 📁 Project Structure
+
 devsecops-demo/
 │
 ├── .github/
@@ -197,24 +273,38 @@ devsecops-demo/
 ├── package-lock.json
 ├── server.js
 └── .gitignore
-🎯 Project Objectives
-Integrate security into CI/CD
-Automate security testing
-Detect vulnerabilities early in development
-Detect exposed secrets
-Identify vulnerable dependencies
-Scan container images
-Perform automated web application security testing
-Demonstrate security gates within GitHub Actions
-Publish validated container images
-🔎 DevSecOps Approach
 
-This project demonstrates a shift-left security approach:
+🎯 Project Objectives
+
+Integrate security into CI/CD
+
+Automate security testing
+
+Detect vulnerabilities early in development
+
+Detect exposed secrets
+
+Identify vulnerable dependencies
+
+Scan container images
+
+Perform automated web application security testing
+
+Introduce repeatable security validation
+
+Demonstrate practical DevSecOps implementation
+
+🔎 DevSecOps Approach
 
 Traditional Development
 
-Code → Build → Deploy → Security Testing
-
+Code
+  ↓
+Build
+  ↓
+Deploy
+  ↓
+Security Testing
 
 DevSecOps
 
@@ -234,48 +324,38 @@ DAST
   ↓
 Validated Release
 
-Security testing is therefore incorporated throughout the delivery lifecycle rather than being performed only after deployment.
+Security controls are introduced throughout the software delivery lifecycle to reduce the risk of vulnerabilities reaching later stages.
 
 📈 Future Improvements
 
-Planned improvements include:
-
 SBOM generation
+
 Automated dependency updates
+
 Container image signing
-Security reporting and dashboards
+
+Security dashboards
+
 Artifact verification
-Deployment security gates
+
+Advanced deployment security gates
+
 Cloud security integration
+
 Centralized vulnerability tracking
+
 💡 Skills Demonstrated
-GitHub Actions
-CI/CD Security
-DevSecOps
-SAST
-DAST
-Secret Detection
-Dependency Scanning
-Container Security
-Docker
-Trivy
-Semgrep
-TruffleHog
-OWASP ZAP
-GitHub Container Registry
+
+GitHub Actions DevSecOps CI/CD Security SAST DAST
+
+Semgrep TruffleHog npm audit Docker Trivy
+
+OWASP ZAP GitHub Container Registry
+
 👨‍💻 Author
 
 Priyadharshan S
 
 Cybersecurity | Cloud Security | DevSecOps
 
-GitHub: https://github.com/priyan-18
-
-
-### One correction
-
-I intentionally **didn't claim that all five workflows are one sequential pipeline**. From the workflow files, they are separate GitHub Actions workflows with their own triggers. That's more technically accurate. :contentReference[oaicite:1]{index=1}
-
-**Do this first:** replace the README with the above and commit it.
-
-Then send me a screenshot of how it looks on GitHub. **Next we'll add the actual workflow evidence.**
+GitHub
